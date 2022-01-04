@@ -26,36 +26,11 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractContext implements ContextInternal {
 
   @Override
-  public abstract boolean isEventLoopContext();
-
-  @Override
   public final boolean isRunningOnContext() {
     return Vertx.currentContext() == this && inThread();
   }
 
   protected abstract boolean inThread();
-
-  public final ContextInternal beginDispatch() {
-    VertxImpl vertx = (VertxImpl) owner();
-    return vertx.beginDispatch(this);
-  }
-
-  public final void endDispatch(ContextInternal previous) {
-    VertxImpl vertx = (VertxImpl) owner();
-    vertx.endDispatch(previous);
-  }
-
-  @Override
-  public long setPeriodic(long delay, Handler<Long> handler) {
-    VertxImpl owner = (VertxImpl) owner();
-    return owner.scheduleTimeout(this, true, delay, TimeUnit.MILLISECONDS, false, handler);
-  }
-
-  @Override
-  public long setTimer(long delay, Handler<Long> handler) {
-    VertxImpl owner = (VertxImpl) owner();
-    return owner.scheduleTimeout(this, false, delay, TimeUnit.MILLISECONDS, false, handler);
-  }
 
   static <T> void setResultHandler(ContextInternal ctx, Future<T> fut, Handler<AsyncResult<T>> resultHandler) {
     if (resultHandler != null) {
