@@ -34,7 +34,7 @@ public class WorkerContext extends ContextImpl {
   }
 
   @Override
-  void runOnContext(AbstractContext ctx, Handler<Void> action) {
+  protected void runOnContext(AbstractContext ctx, Handler<Void> action) {
     try {
       run(ctx, null, action);
     } catch (RejectedExecutionException ignore) {
@@ -61,7 +61,7 @@ public class WorkerContext extends ContextImpl {
   }
 
   @Override
-  <T> void execute(AbstractContext ctx, Runnable task) {
+  protected <T> void execute(AbstractContext ctx, Runnable task) {
     execute(this, task, Runnable::run);
   }
 
@@ -124,7 +124,7 @@ public class WorkerContext extends ContextImpl {
   }
 
   @Override
-  boolean inThread() {
+  protected boolean inThread() {
     return Context.isOnWorkerThread();
   }
 }

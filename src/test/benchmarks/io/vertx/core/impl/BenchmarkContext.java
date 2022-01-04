@@ -41,7 +41,7 @@ public class BenchmarkContext extends ContextImpl {
   }
 
   @Override
-  boolean inThread() {
+  protected boolean inThread() {
     throw new UnsupportedOperationException();
   }
 
@@ -51,7 +51,7 @@ public class BenchmarkContext extends ContextImpl {
   }
 
   @Override
-  void runOnContext(AbstractContext ctx, Handler<Void> action) {
+  protected void runOnContext(AbstractContext ctx, Handler<Void> action) {
     ctx.dispatch(null, action);
   }
 
@@ -61,7 +61,7 @@ public class BenchmarkContext extends ContextImpl {
   }
 
   @Override
-  <T> void execute(AbstractContext ctx, Runnable task) {
+  protected <T> void execute(AbstractContext ctx, Runnable task) {
     task.run();
   }
 
