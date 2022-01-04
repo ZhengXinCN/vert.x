@@ -41,7 +41,7 @@ public class BenchmarkContext extends ContextImpl {
   }
 
   @Override
-  protected boolean inThread() {
+  public boolean inThread() {
     throw new UnsupportedOperationException();
   }
 

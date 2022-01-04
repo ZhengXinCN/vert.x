@@ -95,7 +95,7 @@ public class EventLoopContext extends ContextImpl {
   }
 
   @Override
-  protected boolean inThread() {
+  public boolean inThread() {
     return nettyEventLoop().inEventLoop();
   }
 
