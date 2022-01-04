@@ -25,12 +25,6 @@ import java.util.concurrent.TimeUnit;
  */
 abstract class AbstractContext implements ContextInternal {
 
-  final boolean disableTCCL;
-
-  public AbstractContext(boolean disableTCCL) {
-    this.disableTCCL = disableTCCL;
-  }
-
   @Override
   public abstract boolean isEventLoopContext();
 
@@ -42,21 +36,13 @@ abstract class AbstractContext implements ContextInternal {
   abstract boolean inThread();
 
   public final ContextInternal beginDispatch() {
-    ContextInternal prev;
-    VertxThread th = (VertxThread) Thread.currentThread();
-    prev = th.beginEmission(this);
-    if (!disableTCCL) {
-      th.setContextClassLoader(classLoader());
-    }
-    return prev;
+    VertxImpl vertx = (VertxImpl) owner();
+    return vertx.beginEmission(this);
   }
 
   public final void endDispatch(ContextInternal previous) {
-    VertxThread th = (VertxThread) Thread.currentThread();
-    if (!disableTCCL) {
-      th.setContextClassLoader(previous != null ? previous.classLoader() : null);
-    }
-    th.endEmission(previous);
+    VertxImpl vertx = (VertxImpl) owner();
+    vertx.endEmission(previous);
   }
 
   @Override
