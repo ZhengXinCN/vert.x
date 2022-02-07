@@ -11,6 +11,7 @@ import io.vertx.core.impl.future.PromiseInternal;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +23,13 @@ public class WorkerTest extends VertxTestBase {
     WorkerContext worker = vertx.createWorkerContext();
     PromiseInternal<String> promise = worker.promise();
     AtomicInteger seq = new AtomicInteger();
+    CountDownLatch latch = new CountDownLatch(1);
     worker.runOnContext(v1 -> {
+      try {
+        latch.await();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
       assertEquals(0, seq.getAndIncrement());
       try {
         String res = worker.await(promise);
@@ -37,6 +44,7 @@ public class WorkerTest extends VertxTestBase {
       assertEquals(1, seq.getAndIncrement());
       promise.complete("data");
     });
+    latch.countDown();
     await();
   }
 

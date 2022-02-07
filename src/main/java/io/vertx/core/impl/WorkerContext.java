@@ -15,6 +15,8 @@ import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
+import io.vertx.core.impl.future.FutureInternal;
+import io.vertx.core.impl.future.Listener;
 import io.vertx.core.spi.metrics.PoolMetrics;
 
 import java.util.Objects;
@@ -138,14 +140,21 @@ public class WorkerContext extends ContextImpl {
   public <T> T await(Future<T> future) throws InterruptedException {
     CompletableFuture<T> cf = new CompletableFuture<>();
     Consumer<Runnable> back = orderedTasks.unschedule();
-    future.onComplete(ar -> {
-      back.accept(() -> {
-        if (ar.succeeded()) {
-          cf.complete(ar.result());
-        } else {
-          cf.completeExceptionally(ar.cause());
-        }
-      });
+    ((FutureInternal)future).addListener(new Listener<T>() {
+      @Override
+      public void emitSuccess(ContextInternal context, T value) {
+        back.accept(() -> cf.complete(value));
+      }
+      @Override
+      public void emitFailure(ContextInternal context, Throwable failure) {
+        back.accept(() -> cf.completeExceptionally(failure));
+      }
+      @Override
+      public void onSuccess(Object value) {
+      }
+      @Override
+      public void onFailure(Throwable failure) {
+      }
     });
     try {
       return cf.get(10, TimeUnit.MINUTES);
